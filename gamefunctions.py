@@ -186,3 +186,104 @@ def main():
 if __name__ == "__main__":
     main()
 
+
+
+'''
+Kalob Rogers
+Due date March 23 2025
+Once again i wrote this in python and im simply copying and pasting it here
+that way i have multiple files. I understand that takes up alot of space but
+im comfortable doing it that way while i try to understand github and how 
+it fundementally works
+'''
+
+
+import random
+import gamefunctions
+
+# Initialize player stats
+player_hp = 30
+player_gold = 10
+
+def fight_monster():
+    """Handles the fighting loop with a randomly generated monster."""
+    global player_hp, player_gold
+
+    monster = gamefunctions.new_random_monster()
+    print(f"\nA {monster['name']} appears! {monster['description']}")
+    print(f"It has {monster['health']} HP and {monster['power']} power.\n")
+
+    while monster['health'] > 0 and player_hp > 0:
+        print(f"Your HP: {player_hp}, Monster HP: {monster['health']}")
+        print("1) Attack")
+        print("2) Run Away")
+
+        choice = input("Choose an action: ")
+
+        if choice == "1":
+            damage_to_monster = random.randint(5, 10)
+            monster['health'] -= damage_to_monster
+            print(f"You hit the {monster['name']} for {damage_to_monster} damage!")
+
+            if monster['health'] > 0:
+                damage_to_player = monster['power']
+                player_hp -= damage_to_player
+                print(f"The {monster['name']} hits you for {damage_to_player} damage!")
+
+            if player_hp <= 0:
+                print("You have been defeated! Game Over.")
+                exit()
+
+            if monster['health'] <= 0:
+                print(f"You defeated the {monster['name']} and earned {monster['money']} gold!")
+                player_gold += monster['money']
+                break  # Exit fight loop after winning
+
+        elif choice == "2":
+            print("You run away safely!")
+            break  # Exit fight loop
+
+        else:
+            print("Invalid choice. Try again.")
+
+def rest():
+    """Restores HP in exchange for gold."""
+    global player_hp, player_gold
+    cost = 5
+
+    if player_gold >= cost:
+        player_hp = 30  # Restore full HP
+        player_gold -= cost
+        print("You rested and restored your HP!")
+    else:
+        print("Not enough gold to rest.")
+
+def main():
+    """Main game loop."""
+    global player_hp, player_gold
+
+    player_name = input("Enter your name: ")
+    gamefunctions.print_welcome(player_name)
+
+    while True:
+        print("\nYou are in town.")
+        print(f"Current HP: {player_hp}, Current Gold: {player_gold}")
+        print("What would you like to do?")
+        print("1) Leave town (Fight Monster)")
+        print("2) Sleep (Restore HP for 5 Gold)")
+        print("3) Quit")
+
+        choice = input("Enter choice: ")
+
+        if choice == "1":
+            fight_monster()
+        elif choice == "2":
+            rest()
+        elif choice == "3":
+            print("Goodbye!")
+            break
+        else:
+            print("Invalid choice. Please enter 1, 2, or 3.")
+
+if __name__ == "__main__":
+    main()
