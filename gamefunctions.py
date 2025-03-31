@@ -248,3 +248,149 @@ def main():
 
 if __name__ == "__main__":
     main()
+'''
+Kalob Rogers
+Due date March 30 2025
+This code allows for item purchasing, combat items and shop interface
+also ive had issue witht game.py over the last two assignments but i
+belive ive fixed that problem
+'''
+'''
+This is inventory 
+'''
+# Initialize the inventory
+inventory = []
+
+def purchase_item(item, quantity, player_gold):
+    """Purchase an item and add it to the player's inventory."""
+    item_price = item['price']
+    total_cost = item_price * quantity
+    if player_gold >= total_cost:
+        player_gold -= total_cost
+        # Add item(s) to the inventory
+        for _ in range(quantity):
+            inventory.append(item)
+        print(f"Purchased {quantity} {item['name']}(s).")
+    else:
+        print("Not enough gold!")
+    return player_gold
+
+def show_inventory():
+    """Display the player's inventory."""
+    if inventory:
+        print("Your Inventory:")
+        for idx, item in enumerate(inventory, start=1):
+            print(f"{idx}. {item['name']} ({item['type']})")
+    else:
+        print("Your inventory is empty!")
+
+def equip_item(item_name):
+    """Equip an item from the inventory."""
+    for item in inventory:
+        if item['name'].lower() == item_name.lower():
+            print(f"You equipped the {item_name}.")
+            return item
+    print(f"No item named {item_name} found.")
+    return None
+
+''' 
+This is combat
+'''
+def fight_monster():
+    global player_hp, player_gold
+    monster = gamefunctions.new_random_monster()
+
+    # Check if the player has a sword in inventory
+    sword = None
+    for item in inventory:
+        if item['type'] == "weapon":
+            sword = item
+            break
+
+    if sword:
+        print(f"You equipped the sword! It has {sword['currentDurability']} uses left.")
+    
+    print(f"A wild {monster['name']} appears!")
+    while monster['health'] > 0 and player_hp > 0:
+        print(f"Your HP: {player_hp}, Monster HP: {monster['health']}")
+        print("1) Attack")
+        print("2) Run Away")
+
+        choice = input("Choose an action: ")
+
+        if choice == "1":
+            if sword:
+                # Attack with sword and decrease durability
+                damage = random.randint(5, 10)
+                monster['health'] -= damage
+                sword['currentDurability'] -= 1
+                print(f"You hit the monster for {damage} damage with your sword!")
+
+                if sword['currentDurability'] <= 0:
+                    print("Your sword is broken and cannot be used anymore.")
+                    sword = None
+
+            else:
+                print("You have no weapon equipped!")
+
+            if monster['health'] > 0:
+                # Monster attacks back
+                monster_damage = monster['power']
+                player_hp -= monster_damage
+                print(f"The monster hits you for {monster_damage} damage!")
+
+            if player_hp <= 0:
+                print("You have been defeated!")
+                break
+            elif monster['health'] <= 0:
+                print(f"You defeated the monster! You earned {monster['money']} gold!")
+                player_gold += monster['money']
+                break
+
+        elif choice == "2":
+            print("You run away!")
+            break
+        else:
+            print("Invalid choice.")
+'''
+this is the store interface
+'''
+
+def main():
+    player_name = input("Enter your name: ")
+    gamefunctions.print_welcome(player_name)
+
+    player_gold = 100  # Starting money
+
+    # Show the shop menu
+    gamefunctions.print_shop_menu("Sword", 50, "Shield", 40)
+
+    # Purchase a sword
+    player_gold = purchase_item(sword, 1, player_gold)
+    show_inventory()
+
+    # Equip the sword
+    equip_item("Sword")
+
+    # Start fighting monsters
+    while True:
+        print("\nYou are in town.")
+        print(f"Current HP: {player_hp}, Current Gold: {player_gold}")
+        print("What would you like to do?")
+        print("1) Fight Monster")
+        print("2) Rest (Restore HP)")
+        print("3) Quit")
+
+        choice = input("Enter choice: ")
+        if choice == "1":
+            fight_monster()
+        elif choice == "2":
+            rest()
+        elif choice == "3":
+            print("Goodbye!")
+            break
+        else:
+            print("Invalid choice. Try again.")
+
+if __name__ == "__main__":
+    main()
