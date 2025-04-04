@@ -394,3 +394,165 @@ def main():
 
 if __name__ == "__main__":
     main()
+
+'''
+Kalob Rogers
+Due date April 6 2025
+This code should add saving the game aswell as loading the game
+'''
+import json
+
+def save_game(filename, player_name, player_hp, player_gold, inventory):
+    """Saves the game state to a JSON file."""
+    game_data = {
+        'player_name': player_name,
+        'player_hp': player_hp,
+        'player_gold': player_gold,
+        'inventory': inventory
+    }
+    
+    with open(filename, 'w') as f:
+        json.dump(game_data, f)
+    
+    print(f"Game saved to {filename}.")
+
+def load_game(filename):
+    """Loads the game state from a JSON file."""
+    try:
+        with open(filename, 'r') as f:
+            game_data = json.load(f)
+        return game_data
+    except FileNotFoundError:
+        print(f"No save file found with the name {filename}. Starting a new game.")
+        return None
+import gamefunctions
+import json
+
+# Add a save game feature
+def save_game(filename, player_name, player_hp, player_gold, inventory):
+    """Saves the game state to a JSON file."""
+    game_data = {
+        'player_name': player_name,
+        'player_hp': player_hp,
+        'player_gold': player_gold,
+        'inventory': inventory
+    }
+    
+    with open(filename, 'w') as f:
+        json.dump(game_data, f)
+    
+    print(f"Game saved to {filename}.")
+
+def load_game(filename):
+    """Loads the game state from a JSON file."""
+    try:
+        with open(filename, 'r') as f:
+            game_data = json.load(f)
+        return game_data
+    except FileNotFoundError:
+        print(f"No save file found with the name {filename}. Starting a new game.")
+        return None
+
+
+def main():
+    # Prompt user to either start a new game or load a saved game
+    print("Welcome to the Adventure Game!")
+    choice = input("Would you like to (N)ew game or (L)oad a saved game? ").lower()
+
+    if choice == 'l':
+        filename = input("Enter the filename to load: ")
+        game_data = load_game(filename)
+        if game_data:
+            player_name = game_data['player_name']
+            player_hp = game_data['player_hp']
+            player_gold = game_data['player_gold']
+            inventory = game_data['inventory']
+        else:
+            return  # Exit the game if loading fails
+    else:
+        player_name = input("Enter your name: ")
+        player_hp = 30  # Starting HP
+        player_gold = 100  # Starting money
+        inventory = []  # Empty inventory
+
+    gamefunctions.print_welcome(player_name)
+
+    while True:
+        print("\nYou are in town.")
+        print(f"Current HP: {player_hp}, Current Gold: {player_gold}")
+        print("What would you like to do?")
+        print("1) Leave town (Fight Monster)")
+        print("2) Sleep (Restore HP for 5 Gold)")
+        print("3) Save and Quit")
+        
+        choice = input("Enter choice: ")
+
+        if choice == "1":
+            fight_monster()
+        elif choice == "2":
+            rest()
+        elif choice == "3":
+            save_choice = input("Are you sure you want to save and quit? (Y/N): ").lower()
+            if save_choice == 'y':
+                filename = input("Enter the filename to save: ")
+                save_game(filename, player_name, player_hp, player_gold, inventory)
+                print("Game saved. Exiting...")
+                break  # Exit the game
+        else:
+            print("Invalid choice. Please enter 1, 2, or 3.")
+def fight_monster():
+    global player_hp, player_gold, inventory
+    monster = gamefunctions.new_random_monster()
+
+    # Check if the player has a sword in inventory
+    sword = None
+    for item in inventory:
+        if item['type'] == "weapon":
+            sword = item
+            break
+
+    if sword:
+        print(f"You equipped the sword! It has {sword['currentDurability']} uses left.")
+    
+    print(f"A wild {monster['name']} appears!")
+    while monster['health'] > 0 and player_hp > 0:
+        print(f"Your HP: {player_hp}, Monster HP: {monster['health']}")
+        print("1) Attack")
+        print("2) Run Away")
+
+        choice = input("Choose an action: ")
+
+        if choice == "1":
+            if sword:
+                # Attack with sword and decrease durability
+                damage = random.randint(5, 10)
+                monster['health'] -= damage
+                sword['currentDurability'] -= 1
+                print(f"You hit the monster for {damage} damage with your sword!")
+
+                if sword['currentDurability'] <= 0:
+                    print("Your sword is broken and cannot be used anymore.")
+                    sword = None
+
+            else:
+                print("You have no weapon equipped!")
+
+            if monster['health'] > 0:
+                # Monster attacks back
+                monster_damage = monster['power']
+                player_hp -= monster_damage
+                print(f"The monster hits you for {monster_damage} damage!")
+
+            if player_hp <= 0:
+                print("You have been defeated!")
+                break
+            elif monster['health'] <= 0:
+                print(f"You defeated the monster! You earned {monster['money']} gold!")
+                player_gold += monster['money']
+                break
+        elif choice == "2":
+            print("You run away!")
+            break
+        else:
+            print("Invalid choice.")
+
